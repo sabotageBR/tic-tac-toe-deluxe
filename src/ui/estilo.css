@@ -1,0 +1,121 @@
+/* HUD em DOM por cima dos canvases, no tema neon do modelo 9 do tic-tac-toe-slime: fundo escuro, ciano
+   x magenta, cantos chanfrados e a fonte monoespacada do sistema em caixa alta (nenhuma fonte baixada).
+   As alturas do #topo, #meta e #base sao fixas: a camera enquadra a #area, e o que muda na partida nao
+   pode mudar o tamanho do tabuleiro. */
+:root {
+  --tinta: #e8f6ff;
+  --papel: #04060f;
+  --ciano: #2fe6ff;
+  --magenta: #ff45dc;
+  --ambar: #ffab2e;
+  --vidro: rgba(8, 16, 34, 0.72);
+  --fio: rgba(120, 190, 255, 0.45);
+  --ui: clamp(13px, 1.9vmin + 6px, 21px);
+  --chanfro: polygon(0.5em 0, 100% 0, 100% calc(100% - 0.5em), calc(100% - 0.5em) 100%, 0 100%, 0 0.5em);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden; background: var(--papel); color: var(--tinta);
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  touch-action: none; overscroll-behavior: none; font-size: var(--ui);
+}
+.camada { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; pointer-events: none; }
+
+#hud {
+  position: fixed; inset: 0; display: grid; pointer-events: none;
+  grid-template-columns: 1fr;
+  grid-template-rows: 3.3em minmax(0, 1fr) 1.9em auto;
+  grid-template-areas: "topo" "area" "meta" "base";
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) calc(env(safe-area-inset-right, 0px) + 10px)
+           calc(env(safe-area-inset-bottom, 0px) + 10px) calc(env(safe-area-inset-left, 0px) + 10px);
+  gap: 6px;
+}
+#hud > * { pointer-events: none; }
+#hud button { pointer-events: auto; }
+#topo { grid-area: topo; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#area { grid-area: area; min-height: 0; }
+#meta { grid-area: meta; display: flex; justify-content: center; align-items: center; }
+#base { grid-area: base; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+body[data-orient="paisagem"] #hud {
+  grid-template-columns: minmax(150px, 22%) minmax(0, 1fr) minmax(150px, 22%);
+  grid-template-rows: 3.3em minmax(0, 1fr) 1.9em;
+  grid-template-areas: "topo topo topo" "lado area base" "meta meta meta";
+}
+body[data-orient="paisagem"] #base { justify-content: center; }
+body[data-orient="paisagem"] .submodos { flex-direction: column; }
+
+/* jogadores: losango (X) ou bolinha (O) da cor, nome e placar; o da vez acende */
+.jogador {
+  display: flex; align-items: center; gap: 0.35em; padding: 0.25em 0.55em; min-width: 0;
+  border: 1px solid var(--fio); background: var(--vidro); opacity: 0.5; clip-path: var(--chanfro);
+  transition: opacity 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.jogador.da-vez { opacity: 1; }
+.j1.da-vez { border-color: var(--ciano); box-shadow: inset 0 0 0.9em rgba(47, 230, 255, 0.35); }
+.j2.da-vez { border-color: var(--magenta); box-shadow: inset 0 0 0.9em rgba(255, 69, 220, 0.35); }
+.jogador .ponto { width: 0.75em; height: 0.75em; flex: none; transform: rotate(45deg); background: currentColor; box-shadow: 0 0 0.6em currentColor; }
+.j1 .ponto { color: var(--ciano); }
+.j2 .ponto { color: var(--magenta); border-radius: 50%; }
+.jogador.da-vez .ponto { animation: pisca 0.9s ease-in-out infinite; }
+@keyframes pisca { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+.jogador .nome { font-size: 0.68em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jogador .pts { font-size: 1.2em; }
+.j1 .pts { color: var(--ciano); text-shadow: 0 0 0.5em var(--ciano); }
+.j2 .pts { color: var(--magenta); text-shadow: 0 0 0.5em var(--magenta); }
+.meio { flex: 1; text-align: center; min-width: 0; }
+.titulo { font-size: 0.78em; letter-spacing: 0.22em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 0.7em rgba(255, 171, 46, 0.75); }
+.titulo b { color: var(--ambar); font-weight: 700; }
+.vez { font-size: 0.62em; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.2em; }
+
+.dica { font-size: 0.6em; text-transform: none; letter-spacing: 0.01em; opacity: 0.75; text-align: center; line-height: 1.15; max-width: 100%; }
+
+/* submodos e botoes */
+.submodos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.submodos button {
+  font: inherit; font-size: 0.64em; letter-spacing: 0.08em; padding: 0.45em 0.85em; cursor: pointer;
+  border: 1px solid var(--fio); background: var(--vidro); color: var(--tinta); clip-path: polygon(0.45em 0, 100% 0, 100% calc(100% - 0.45em), calc(100% - 0.45em) 100%, 0 100%, 0 0.45em);
+  text-transform: uppercase; touch-action: manipulation;
+}
+.submodos button.ativo { background: rgba(47, 230, 255, 0.2); border-color: var(--ciano); color: #fff; text-shadow: 0 0 0.6em var(--ciano); }
+.acoes { display: flex; gap: 10px; }
+.btn {
+  position: relative; display: grid; place-items: center; cursor: pointer; padding: 0; font: inherit; touch-action: manipulation;
+  width: 2.3em; height: 2.3em; font-size: 0.8em; border: 1px solid var(--fio); background: var(--vidro); color: var(--tinta);
+  clip-path: var(--chanfro);
+}
+.btn:active { background: rgba(47, 230, 255, 0.25); }
+.btn svg { width: 58%; height: 58%; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.btn.mudo { opacity: 0.5; }
+
+/* carregando: o titulo e um # neon que acende casa por casa (some quando o main.js termina de montar) */
+#carregando { position: fixed; inset: 0; display: grid; place-content: center; gap: 22px; background: var(--papel); z-index: 9; }
+#carregando .logo { font-size: 1.4em; letter-spacing: 0.22em; text-align: center; text-shadow: 0 0 0.7em rgba(255, 171, 46, 0.75); }
+#carregando .grade { display: grid; grid-template-columns: repeat(3, 40px); gap: 6px; justify-content: center; }
+#carregando .grade i { width: 40px; height: 40px; border: 1px solid rgba(255, 171, 46, 0.6); box-shadow: 0 0 10px rgba(255, 171, 46, 0.25); animation: acende 1.8s infinite; }
+#carregando .grade i:nth-child(odd) { animation-name: acendeO; }
+#carregando .grade i:nth-child(2) { animation-delay: 0.2s; } #carregando .grade i:nth-child(3) { animation-delay: 0.4s; }
+#carregando .grade i:nth-child(4) { animation-delay: 0.6s; } #carregando .grade i:nth-child(5) { animation-delay: 0.8s; }
+#carregando .grade i:nth-child(6) { animation-delay: 1s; } #carregando .grade i:nth-child(7) { animation-delay: 1.2s; }
+#carregando .grade i:nth-child(8) { animation-delay: 1.4s; } #carregando .grade i:nth-child(9) { animation-delay: 1.6s; }
+@keyframes acende { 0%, 100% { background: transparent; } 30% { background: rgba(47, 230, 255, 0.45); } }
+@keyframes acendeO { 0%, 100% { background: transparent; } 30% { background: rgba(255, 69, 220, 0.45); } }
+
+/* "Continuar" entre as partidas encadeadas: so existe no portal que so aceita o intervalo depois de um
+   clique (o main.js cria o botao quando precisa), no meio do tabuleiro recem-apagado */
+#area { position: relative; }
+.seguir {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; cursor: pointer;
+  font: inherit; font-size: 1em; letter-spacing: 0.16em; padding: 0.85em 1.7em; touch-action: manipulation;
+  border: 1px solid var(--ciano); background: rgba(4, 10, 24, 0.88); color: #fff; text-transform: uppercase;
+  text-shadow: 0 0 0.6em var(--ciano); box-shadow: inset 0 0 1.2em rgba(47, 230, 255, 0.35); clip-path: var(--chanfro);
+  animation: chama 1.4s ease-in-out infinite;
+}
+.seguir:active { background: rgba(47, 230, 255, 0.25); }
+@keyframes chama { 0%, 100% { border-color: var(--ciano); } 50% { border-color: var(--magenta); } }
+
+#debug { position: fixed; left: 6px; bottom: 6px; font: 11px/1.3 monospace; text-transform: none; background: rgba(0, 0, 0, 0.7); color: #9fe; padding: 4px 6px; pointer-events: none; z-index: 8; }
+body.semhud #hud { visibility: hidden; } /* o layout fica: a camera enquadra a #area */

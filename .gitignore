@@ -1,0 +1,7 @@
+.tmp/
+dist/
+dist-californiagames/
+dist-y8/
+node_modules/
+*.log
+.DS_Store

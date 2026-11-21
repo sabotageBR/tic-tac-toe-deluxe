@@ -1,0 +1,6 @@
+Tic Tac Toe Deluxe - recursos de terceiros
+==========================================
+
+Nenhum. Os sons sao sintetizados no navegador (src/som/), o desenho e feito em Canvas 2D
+(src/render/) e o texto usa a fonte monoespacada do proprio sistema. Nao ha imagens,
+fontes nem arquivos de audio baixados.

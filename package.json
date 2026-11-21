@@ -1,0 +1,22 @@
+{
+  "name": "tic-tac-toe-deluxe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tic Tac Toe Deluxe: jogo da velha neon (o Classico do modelo 9 do tic-tac-toe-slime) com o Classico 3x3 e o Grande 5x5, contra a CPU ou 2 jogadores, para o californiagames.io (HTML + JavaScript puro).",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "servir": "node tools/servir.mjs",
+    "lan": "node tools/servir.mjs --lan",
+    "empacotar": "node tools/empacotar.mjs",
+    "empacotar:y8": "node tools/empacotar.mjs --alvo=y8",
+    "verificar:y8": "node tools/verificar-y8.mjs"
+  },
+  "portais": {
+    "y8": {
+      "nome": "Neon Tic Tac Toe Deluxe",
+      "appId": "6b00df6977e93571d5252953",
+      "gameId": "294575"
+    }
+  }
+}
